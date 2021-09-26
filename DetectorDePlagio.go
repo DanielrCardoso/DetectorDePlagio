@@ -27,7 +27,10 @@ func main() {
 	}
 	PrintNumPalvras(lines)
 	a, _ := fileCount("Arquivos para verificação")
-	fmt.Println(a)
+	fmt.Println("Numero de aquivos: ", a)
+
+	fmt.Println("Arquivos encontrados: ")
+	showNameFiles("Arquivos para verificação")
 }
 
 func ContadorDePalavras(str []string) map[string]int { //Abrir arquivo e verificar a incidencia de cada palavra
@@ -76,4 +79,18 @@ func fileCount(caminho string) (int, error) {
 		}
 	}
 	return i, nil
+}
+
+func showNameFiles(caminho string) {
+	files, err := ioutil.ReadDir(caminho)
+	if err != nil {
+		log.Fatal(err)
+	}
+	for _, f := range files {
+		fmt.Println(f.Name())
+	}
+}
+
+func printFile() {
+
 }
