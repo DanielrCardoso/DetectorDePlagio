@@ -3,6 +3,7 @@ package main
 import (
 	"bufio"
 	"fmt"
+	"io/ioutil"
 	"log"
 	"os"
 	"strings"
@@ -25,6 +26,8 @@ func main() {
 		fmt.Println(line)
 	}
 	PrintNumPalvras(lines)
+	a, _ := fileCount("Arquivos para verificação")
+	fmt.Println(a)
 }
 
 func ContadorDePalavras(str []string) map[string]int { //Abrir arquivo e verificar a incidencia de cada palavra
@@ -59,4 +62,18 @@ func GeradorDeToken() { //Troca palvras chave por tokens predenidos
 }
 
 func MaiorSubstring() { //Dado dois arquivos o algoritmo retorna a maior substring detectada
+}
+
+func fileCount(caminho string) (int, error) {
+	i := 0
+	arquivos, err := ioutil.ReadDir(caminho)
+	if err != nil {
+		return 0, err
+	}
+	for _, file := range arquivos {
+		if !file.IsDir() {
+			i++
+		}
+	}
+	return i, nil
 }
