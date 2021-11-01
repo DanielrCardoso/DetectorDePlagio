@@ -10,6 +10,7 @@ import (
 	"strings"
 	"sync"
 	"unicode"
+	// "runtime"
 )
 
 var wg sync.WaitGroup
@@ -45,6 +46,7 @@ func main() {
 		go RunPlag(a, conteudoArqs[cacatua], conteudoArqs)
 	}
 	wg.Wait()
+	// fmt.Println("go:",runtime.NumGoroutine())
 }
 
 func RunPlag(tamanho int, archive string, data []string) {
