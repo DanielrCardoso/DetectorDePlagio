@@ -23,6 +23,11 @@ func main() {
 	//showNameFiles("Arquivos para verificação")
 	headers := make([]string, a)
 
+	// err_dir := os.Mkdir("depuracao", 0755)
+	// if err_dir != nil {
+	// 	log.Fatal(err_dir)
+	// }
+
 	var fullLine = ""
 	var path = ""
 	files, err := ioutil.ReadDir("Arquivos para verificação")
@@ -46,8 +51,6 @@ func main() {
 	RunPlag(a, conteudoArqs[0], conteudoArqs, headers, 0)
 	// RunPlag(a, conteudoArqs[1], conteudoArqs)
 
-	fmt.Println("head!", headers)
-
 	// for cacatua := range conteudoArqs {
 	// 	// wg.Add(1)
 	// 	RunPlag(a, conteudoArqs[cacatua], conteudoArqs)
@@ -57,27 +60,60 @@ func main() {
 }
 
 func gera_dados(arq string, pos []int, tam []int, headers_0 string, headers_1 string) {
-	// var arq_aux []string
-	// var arq_result string
-	// var tamanho_plag = 3
+	var arq_aux []string
+	var arq_result string
+	var pos_aux []int
+	var tamanho_plag = 3
 
-	f, err := os.Create("Dados.html")
+	for i := 0; i < len(pos); i++ { // CUIDADO!!!
+		if tam[i] > tamanho_plag {
+			arq_aux = append(arq_aux, "<mark>"+arq[pos[i]-1:pos[i]+tam[i]-1]+"-->"+headers_1+"</mark>")
+			pos_aux = append(pos_aux, (pos[i])-1)
+			pos_aux = append(pos_aux, (tam[i]))
+			fmt.Println("pos:", pos[i])
+			fmt.Println("tam:", tam[i])
+			fmt.Println("path0:", headers_0)
+			fmt.Println("path1:", headers_1)
+		}
+		if pos[i] == 0 {
+			i = len(pos)
+		}
+	}
+
+	fmt.Println("arq_aux", arq_aux)
+
+	aux_idx := 0
+	aux_idx2 := 0
+	for i := 0; i < len(arq); i++ {
+		if aux_idx < len(pos_aux) && i == pos_aux[aux_idx] {
+			arq_result += arq_aux[aux_idx2]
+			i += pos_aux[aux_idx+1]
+			aux_idx2 += 1
+			aux_idx += 2
+		} else {
+			arq_result += arq[i : i+1]
+		}
+	}
+	fmt.Println(pos_aux)
+	fmt.Println(arq_result)
+
+	f, err := os.Create(headers_0 + "_" + headers_1 + "_depuração.html")
 	if err != nil {
 		log.Fatalln("My program broke", err.Error())
 	}
 
 	defer f.Close()
 
-	// str := "<!DOCTYPE html>\n<html>\n<head>\n<style>\nmark { \nbackground-color: red;\ncolor: black;\n}\n</style>\n</head>\n<body>\n<p>Aqui não tem plagio!</p>\n<mark>" + arq_aux + "</mark>\n<p>aqui tbm não.\n</p>\n</body>\n</html>"
+	str := "<!DOCTYPE html>\n<html>\n<head>\n<style>\nmark { \nbackground-color: red;\ncolor: black;\n}\n</style>\n</head>\n<body>\n<p>Aqui não tem plagio!</p>\n" + arq_result + "\n<p>aqui tbm não.\n</p>\n</body>\n</html>"
 
-	// bs := []byte(str)
+	bs := []byte(str)
 
-	// _, err = f.Write(bs)
-	// if err != nil {
-	// 	log.Fatalln("error writing to file", err.Error())
-	// }
+	_, err = f.Write(bs)
+	if err != nil {
+		log.Fatalln("error writing to file", err.Error())
+	}
 
-	// fmt.Print(string(bs))
+	fmt.Print(string(bs))
 }
 
 func RunPlag(tamanho int, archive string, data []string, headers []string, arq_idx int) {
@@ -85,7 +121,7 @@ func RunPlag(tamanho int, archive string, data []string, headers []string, arq_i
 	for i = 0; i < tamanho; i++ {
 		if archive != data[i] {
 			// ww.Add(1)
-			ArrayResult, ArrayResult2 := make([]int, tamanho*100), make([]int, tamanho*100)
+			ArrayResult, ArrayResult2 := make([]int, tamanho*len(archive)*len(data[i])), make([]int, tamanho*len(archive)*len(data[i]))
 			MaiorSubstringComumdo(archive, data[i], ArrayResult, ArrayResult2)
 			fmt.Print("arquivo: ", archive, " data :", data[i])
 			for abacate := range ArrayResult {
