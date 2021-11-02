@@ -1,4 +1,4 @@
-package main
+package similaridade
 
 import (
 	"bufio"
@@ -11,9 +11,10 @@ import (
 	"sync"
 	"unicode"
 	"runtime"
+	//"path/filepath"
 )
 
-var wg sync.WaitGroup
+// var wg sync.WaitGroup
 var ww sync.WaitGroup
 
 func main() {
@@ -67,7 +68,7 @@ func similaridade_cos(result [][]float64, headers []string) {
 	}
 	idx := 0
 	var conteudoArqs []string
-	for _, f := range files {
+	for _, f := range files { // repetido (atenção)
 		path = "Arquivos para verificação/" + f.Name()
 		fmt.Println("Abrindo arquivo: " + path)
 		headers[idx] = f.Name()
@@ -75,17 +76,15 @@ func similaridade_cos(result [][]float64, headers []string) {
 		fullLine = myreadFile(path)
 		conteudoArqs = append(conteudoArqs, fullLine)
 	}
-
 	for i := range conteudoArqs {
 		for j := range conteudoArqs {
 			ww.Add(1)
 			go similaridade(conteudoArqs[i], conteudoArqs[j], result, i, j)
 		}
-		fmt.Println(runtime.NumGoroutine())
+		fmt.Println(runtime.NumGoroutine())  // debbug
 		ww.Wait()
 	}
 }
-
 func Cosine(a []float64, b []float64, result [][]float64, i int, j int) {
 	count := 0
 	length_a := len(a)
@@ -111,9 +110,6 @@ func Cosine(a []float64, b []float64, result [][]float64, i int, j int) {
 		s1 += math.Pow(a[k], 2)
 		s2 += math.Pow(b[k], 2)
 	}
-	// if s1 == 0 || s2 == 0 {
-	// 	return 0.0, errors.New("Vectors should not be null (all zeros)")
-	// }
 	result[i][j] = sumA / (math.Sqrt(s1) * math.Sqrt(s2))
 }
 func similaridade(arq_0 string, arq_1 string, result [][]float64, x int, y int) {
@@ -147,7 +143,7 @@ func Find(a []string, x string) int {
 	}
 	return len(a)
 }
-func fileCount(caminho string) (int, error) {
+func fileCount(caminho string) (int, error) {  // repetido (y)
 	i := 0
 	arquivos, err := ioutil.ReadDir(caminho)
 	if err != nil {
@@ -160,7 +156,7 @@ func fileCount(caminho string) (int, error) {
 	}
 	return i, nil
 }
-func myreadFile(path string) string {
+func myreadFile(path string) string {   // repetido (y)
 	readFile, err := os.Open(path)
 	if err != nil {
 		log.Fatal(err)
@@ -174,7 +170,6 @@ func myreadFile(path string) string {
 	readFile.Close()
 	var fullLine = " "
 	for _, line := range lines {
-		//fmt.Println(line)
 		fullLine += (line + "\n")
 	}
 	return fullLine
