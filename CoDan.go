@@ -6,8 +6,8 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
-
-	// "runtime"
+	"path/filepath"
+	"runtime"
 	"strings"
 	"sync"
 	"unicode"
@@ -38,25 +38,23 @@ func main() {
 	var conteudoArqs []string
 	for _, f := range files {
 		path = "Arquivos para verificação/" + f.Name()
-		fmt.Print("Abrindo arquivo: " + path)
+		fmt.Println("Abrindo arquivo: " + path)
 		headers[idx] = f.Name()
 		idx++
 		fullLine = myreadFile(path)
-		//fmt.Println(fullLine)
-		//PrintNumPalvras(fullLine)
-		//fmt.Println("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++=")
 		conteudoArqs = append(conteudoArqs, fullLine)
 	}
 
-	RunPlag(a, conteudoArqs[0], conteudoArqs, headers, 0)
+	// RunPlag(a, conteudoArqs[0], conteudoArqs, headers, 0)
 	// RunPlag(a, conteudoArqs[1], conteudoArqs)
 
-	// for cacatua := range conteudoArqs {
-	// 	// wg.Add(1)
-	// 	RunPlag(a, conteudoArqs[cacatua], conteudoArqs)
-	// }
-	// fmt.Println(runtime.NumGoroutine())
-	// // wg.Wait()
+	for cacatua := range conteudoArqs {
+		wg.Add(1)
+		fmt.Println(runtime.NumGoroutine())
+		go RunPlag(a, conteudoArqs[cacatua], conteudoArqs, headers, cacatua)
+	}
+	fmt.Println(runtime.NumGoroutine())
+	wg.Wait()
 }
 
 func gera_dados(arq string, pos []int, tam []int, headers_0 string, headers_1 string) {
@@ -70,17 +68,12 @@ func gera_dados(arq string, pos []int, tam []int, headers_0 string, headers_1 st
 			arq_aux = append(arq_aux, "<mark>"+arq[pos[i]-1:pos[i]+tam[i]-1]+"-->"+headers_1+"</mark>")
 			pos_aux = append(pos_aux, (pos[i])-1)
 			pos_aux = append(pos_aux, (tam[i]))
-			fmt.Println("pos:", pos[i])
-			fmt.Println("tam:", tam[i])
-			fmt.Println("path0:", headers_0)
-			fmt.Println("path1:", headers_1)
+
 		}
 		if pos[i] == 0 {
 			i = len(pos)
 		}
 	}
-
-	fmt.Println("arq_aux", arq_aux)
 
 	aux_idx := 0
 	aux_idx2 := 0
@@ -94,10 +87,8 @@ func gera_dados(arq string, pos []int, tam []int, headers_0 string, headers_1 st
 			arq_result += arq[i : i+1]
 		}
 	}
-	fmt.Println(pos_aux)
-	fmt.Println(arq_result)
 
-	f, err := os.Create(headers_0 + "_" + headers_1 + "_depuração.html")
+	f, err := os.Create(filepath.Join("depuracao", filepath.Base(headers_0+"_"+headers_1+".html")))
 	if err != nil {
 		log.Fatalln("My program broke", err.Error())
 	}
@@ -113,7 +104,6 @@ func gera_dados(arq string, pos []int, tam []int, headers_0 string, headers_1 st
 		log.Fatalln("error writing to file", err.Error())
 	}
 
-	fmt.Print(string(bs))
 }
 
 func RunPlag(tamanho int, archive string, data []string, headers []string, arq_idx int) {
@@ -123,17 +113,16 @@ func RunPlag(tamanho int, archive string, data []string, headers []string, arq_i
 			// ww.Add(1)
 			ArrayResult, ArrayResult2 := make([]int, tamanho*len(archive)*len(data[i])), make([]int, tamanho*len(archive)*len(data[i]))
 			MaiorSubstringComumdo(archive, data[i], ArrayResult, ArrayResult2)
-			fmt.Print("arquivo: ", archive, " data :", data[i])
-			for abacate := range ArrayResult {
-				if ArrayResult[abacate] != 0 {
-					fmt.Println("teste", ArrayResult[abacate], " , ", ArrayResult2[abacate])
-				}
-			}
+			// for abacate := range ArrayResult { //// lembrete
+			// 	if ArrayResult[abacate] != 0 {
+			// 		// fmt.Println("teste", ArrayResult[abacate], " , ", ArrayResult2[abacate])
+			// 	}
+			// }
 			gera_dados(archive, ArrayResult, ArrayResult2, headers[arq_idx], headers[i])
 		}
-		// ww.Wait()
 	}
-	// wg.Done()
+	// ww.Wait()
+	wg.Done()
 }
 
 func myreadFile(path string) string {
@@ -150,7 +139,6 @@ func myreadFile(path string) string {
 	readFile.Close()
 	var fullLine = " "
 	for _, line := range lines {
-		//fmt.Println(line)
 		fullLine += (line + "\n")
 	}
 	return fullLine
@@ -209,8 +197,6 @@ func showNameFiles(caminho string) {
 		fmt.Println(f.Name())
 	}
 }
-func printFile() {
-}
 
 /////////////////////////////////////////////////////////////////////////////////
 
@@ -250,7 +236,7 @@ func MaiorSubstringComumdo(str1, str2 string, resultA []int, resultB []int) {
 		}
 	}
 
-	printMatriz(m, len1, len2)
+	// printMatriz(m, len1, len2)
 	aux1, aux2, idx := 0, 0, 0
 	for i = 0; i <= len1; i++ {
 		for j = 0; j <= len2; j++ {
@@ -284,7 +270,5 @@ func MaiorSubstringComumdo(str1, str2 string, resultA []int, resultB []int) {
 			}
 		}
 	}
-	//println("resultA", resultA[0])
 	// ww.Done()
-	//printMatriz(m, len1, len2)
 }
